@@ -88,38 +88,21 @@ function jsonp(params, callback) {
   const timeout = setTimeout(function() {
     delete window[nombreCallback];
     if (script.parentNode) script.parentNode.removeChild(script);
-
-    const btn = document.getElementById("btnGuardar");
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = "Enviar selección";
-    }
-
-    mostrarMensaje("No hubo respuesta del servidor. Revise la implementación del Apps Script o la conexión.", "error");
+    mostrarMensaje("No hubo respuesta del servidor al cargar datos.", "error");
   }, 60000);
 
   window[nombreCallback] = function(data) {
     clearTimeout(timeout);
     delete window[nombreCallback];
-
     if (script.parentNode) script.parentNode.removeChild(script);
-
     callback(data);
   };
 
   script.onerror = function() {
     clearTimeout(timeout);
     delete window[nombreCallback];
-
     if (script.parentNode) script.parentNode.removeChild(script);
-
-    const btn = document.getElementById("btnGuardar");
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = "Enviar selección";
-    }
-
-    mostrarMensaje("No se pudo conectar con Apps Script. Verifique la URL de implementación y los permisos.", "error");
+    mostrarMensaje("No se pudo conectar con Apps Script. Verifique la URL y los permisos.", "error");
   };
 
   const query = new URLSearchParams({
@@ -136,7 +119,6 @@ function mostrarMensaje(texto, tipo = "normal") {
   const mensaje = document.getElementById("mensaje");
   mensaje.textContent = texto;
   mensaje.style.display = "block";
-
   mensaje.className = "alerta";
   if (tipo === "error") mensaje.classList.add("error");
 }
@@ -277,12 +259,54 @@ function guardarSeleccion() {
 
   mostrarMensaje("Enviando selección. Espere la confirmación del sistema.");
 
-  jsonp({
-    accion: "guardar",
-    distrito: distritoActual,
-    ids: seleccionados.join(",")
-  }, function(res) {
+  const iframe = document.createElement("iframe");
+  iframe.name = "iframeEnvio_" + Date.now();
+  iframe.style.display = "none";
+  document.body.appendChild(iframe);
+
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = URL;
+  form.target = iframe.name;
+  form.style.display = "none";
+
+  const inputDistrito = document.createElement("input");
+  inputDistrito.type = "hidden";
+  inputDistrito.name = "distrito";
+  inputDistrito.value = distritoActual;
+  form.appendChild(inputDistrito);
+
+  const inputIds = document.createElement("input");
+  inputIds.type = "hidden";
+  inputIds.name = "ids";
+  inputIds.value = seleccionados.join(",");
+  form.appendChild(inputIds);
+
+  document.body.appendChild(form);
+
+  const timeout = setTimeout(function() {
+    window.removeEventListener("message", recibirRespuesta);
+    btnGuardar.disabled = false;
     btnGuardar.textContent = "Enviar selección";
+    mostrarMensaje("No se recibió confirmación del servidor. Revise si los datos fueron guardados en SELECCIONADOS.", "error");
+
+    if (form.parentNode) form.parentNode.removeChild(form);
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+  }, 60000);
+
+  function recibirRespuesta(event) {
+    clearTimeout(timeout);
+    window.removeEventListener("message", recibirRespuesta);
+
+    btnGuardar.textContent = "Enviar selección";
+
+    const res = event.data;
+
+    if (!res || typeof res !== "object") {
+      btnGuardar.disabled = false;
+      mostrarMensaje("La respuesta del servidor no fue válida.", "error");
+      return;
+    }
 
     if (!res.ok) {
       btnGuardar.disabled = false;
@@ -299,7 +323,13 @@ function guardarSeleccion() {
       `Envío completado. Distrito: ${res.distrito}. Seleccionados: ${res.seleccionados}.`;
 
     document.getElementById("distrito").value = "";
-  });
+
+    if (form.parentNode) form.parentNode.removeChild(form);
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+  }
+
+  window.addEventListener("message", recibirRespuesta);
+  form.submit();
 }
 
 cargarDistritos();
