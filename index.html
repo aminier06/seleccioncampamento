@@ -58,24 +58,62 @@ td {
 
 <body>
 
-<header class="membrete">
-  <div class="membrete-contenido">
-    
-    <div class="logo">
-      <!-- Puedes sustituir por imagen oficial si quieres -->
-      <div class="logo-box">MINERD</div>
-    </div>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #eef6ff, #f8fbff);
+  margin: 0;
+  color: #1f2937;
+}
 
-    <div class="texto">
-      <div class="institucion">Ministerio de Educación</div>
-      <div class="viceministerio">Viceministerio de Servicios Técnicos y Pedagógicos</div>
-      <div class="direccion">Dirección de Educación Primaria</div>
-      <div class="titulo">Selección de estudiantes para el campamento</div>
-    </div>
+.hero {
+  background: linear-gradient(135deg, #0f4c81, #1f7acb, #25a18e);
+  padding: 34px 22px;
+  color: white;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
 
-  </div>
-</header>
-<label>Distrito:</label>
+.hero-card {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.brand-badge {
+  width: 92px;
+  height: 92px;
+  border-radius: 22px;
+  background: white;
+  color: #0f4c81;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: .95;
+}
+
+.hero h1 {
+  margin: 6px 0 8px;
+  font-size: 30px;
+  line-height: 1.15;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 15px;
+  opacity: .95;
+}
+  <label>Distrito:</label>
 <select id="distrito" onchange="cargarListado()">
   <option value="">Cargando...</option>
 </select>
