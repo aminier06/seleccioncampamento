@@ -189,27 +189,33 @@
 </footer>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbwLlwv0Edj1plzHpwpbgJzF2lOraFM7t-eRWJFBqf8QY0QpBcZ62ok8pEbNNBNL3Nbzag/exec";
+const URL = "https://script.google.com/macros/s/AKfycbzCT1QYTz6YWaf3n2ZOKwcX8H-9XHv6SlnjNSv4LhET8uEfxU48NmgEBX7cWmRDp2X6xg/exec";
 
 let cuotaActual = 0;
 let distritoActual = "";
-let yaEnvioActual = false;
 
 function jsonp(params, callback) {
   const nombreCallback = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+  const script = document.createElement("script");
 
   window[nombreCallback] = function(data) {
     delete window[nombreCallback];
-    document.body.removeChild(script);
+    if (script.parentNode) script.parentNode.removeChild(script);
     callback(data);
+  };
+
+  script.onerror = function() {
+    delete window[nombreCallback];
+    if (script.parentNode) script.parentNode.removeChild(script);
+    mostrarMensaje("No se pudo conectar con Apps Script. Verifique la URL de implementación y los permisos.", "error");
   };
 
   const query = new URLSearchParams({
     ...params,
-    callback: nombreCallback
+    callback: nombreCallback,
+    t: Date.now()
   });
 
-  const script = document.createElement("script");
   script.src = URL + "?" + query.toString();
   document.body.appendChild(script);
 }
@@ -242,11 +248,8 @@ function cargarDistritos() {
     res.distritos.forEach(d => {
       const option = document.createElement("option");
       option.value = d.distrito;
-      option.textContent = d.enviado 
-        ? `${d.distrito} — ENVIADO`
-        : `${d.distrito} — Cuota: ${d.cuota}`;
+      option.textContent = `${d.distrito} — Cuota: ${d.cuota}`;
       option.dataset.cuota = d.cuota;
-      option.dataset.enviado = d.enviado;
       select.appendChild(option);
     });
   });
@@ -281,9 +284,7 @@ function cargarListado() {
     }
 
     cuotaActual = Number(res.cuota) || 0;
-    yaEnvioActual = res.yaEnvio === true;
 
-    
     if (!res.estudiantes || res.estudiantes.length === 0) {
       info.textContent = "No hay estudiantes candidatos para este distrito.";
       return;
@@ -355,7 +356,7 @@ function guardarSeleccion() {
   }
 
   const confirmar = confirm(
-    `Está a punto de guardar ${seleccionados.length} estudiante(s) para el distrito ${distritoActual}. Después de guardar, no podrá enviar nuevamente. ¿Desea continuar?`
+    `Está a punto de enviar ${seleccionados.length} estudiante(s) para el distrito ${distritoActual}. ¿Desea continuar?`
   );
 
   if (!confirmar) return;
@@ -373,17 +374,17 @@ function guardarSeleccion() {
   }, function(res) {
     if (!res.ok) {
       document.getElementById("btnGuardar").disabled = false;
-      mostrarMensaje(res.mensaje || "No se pudo guardar la selección.", "error");
+      mostrarMensaje(res.mensaje || "No se pudo enviar la selección.", "error");
       return;
     }
 
-    mostrarMensaje(res.mensaje || "Selección guardada correctamente.");
+    mostrarMensaje(res.mensaje || "Selección enviada correctamente.");
     document.getElementById("tabla").style.display = "none";
     document.getElementById("btnGuardar").disabled = true;
     document.getElementById("info").textContent =
       `Envío completado. Distrito: ${res.distrito}. Seleccionados: ${res.seleccionados}.`;
 
-    cargarDistritos();
+    document.getElementById("distrito").value = "";
   });
 }
 
