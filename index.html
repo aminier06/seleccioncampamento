@@ -52,68 +52,64 @@ td {
   color:red;
   margin-top:10px;
 }
+
+/* ===== NUEVO MEMBRETE ===== */
+.hero {
+  background: linear-gradient(135deg, #0f4c81, #1f7acb, #25a18e);
+  padding: 25px;
+  border-radius: 12px;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.hero-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.brand-badge {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  background: white;
+  color: #0f4c81;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.hero h1 {
+  margin: 5px 0;
+  font-size: 22px;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
 </style>
 
 </head>
 
 <body>
 
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #eef6ff, #f8fbff);
-  margin: 0;
-  color: #1f2937;
-}
+<!-- ===== MEMBRETE ===== -->
+<header class="hero">
+  <div class="hero-card">
+    <div class="brand-badge">MINERD</div>
+    <div>
+      <div><strong>Ministerio de Educación</strong></div>
+      <div>Viceministerio de Servicios Técnicos y Pedagógicos</div>
+      <div>Dirección de Educación Primaria</div>
+      <h1>Selección de estudiantes para el campamento</h1>
+    </div>
+  </div>
+</header>
 
-.hero {
-  background: linear-gradient(135deg, #0f4c81, #1f7acb, #25a18e);
-  padding: 34px 22px;
-  color: white;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-}
-
-.hero-card {
-  max-width: 1100px;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  gap: 22px;
-}
-
-.brand-badge {
-  width: 92px;
-  height: 92px;
-  border-radius: 22px;
-  background: white;
-  color: #0f4c81;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 18px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
-}
-
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 13px;
-  font-weight: 700;
-  opacity: .95;
-}
-
-.hero h1 {
-  margin: 6px 0 8px;
-  font-size: 30px;
-  line-height: 1.15;
-}
-
-.hero p {
-  margin: 0;
-  font-size: 15px;
-  opacity: .95;
-}
-  <label>Distrito:</label>
+<label>Distrito:</label>
 <select id="distrito" onchange="cargarListado()">
   <option value="">Cargando...</option>
 </select>
