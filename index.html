@@ -6,140 +6,27 @@
   <title>Selección de estudiantes - Campamento</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f4f7fb;
-      color: #1f2937;
-    }
-
-    header {
-      background: linear-gradient(135deg, #0f4c81, #1f7acb);
-      color: white;
-      padding: 28px 20px;
-      text-align: center;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 26px;
-    }
-
-    header p {
-      margin: 8px 0 0;
-      font-size: 15px;
-    }
-
-    main {
-      max-width: 1100px;
-      margin: 25px auto;
-      background: white;
-      padding: 25px;
-      border-radius: 14px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    }
-
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    select, button {
-      padding: 11px;
-      font-size: 15px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-    }
-
-    select {
-      width: 100%;
-      max-width: 520px;
-      background: white;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      background: #0f4c81;
-      color: white;
-      font-weight: bold;
-      margin-top: 18px;
-    }
-
-    button:hover {
-      background: #0b3a63;
-    }
-
-    button:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-    }
-
-    .info {
-      margin-top: 18px;
-      padding: 14px;
-      background: #eaf4ff;
-      border-left: 5px solid #1f7acb;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-
-    .alerta {
-      margin-top: 18px;
-      padding: 14px;
-      background: #fff3cd;
-      border-left: 5px solid #f59e0b;
-      border-radius: 8px;
-      display: none;
-    }
-
-    .error {
-      background: #fdecea;
-      border-left-color: #dc2626;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 22px;
-      font-size: 14px;
-    }
-
-    th {
-      background: #0f4c81;
-      color: white;
-      text-align: left;
-      padding: 10px;
-    }
-
-    td {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 9px;
-    }
-
-    tr:hover {
-      background: #f8fafc;
-    }
-
-    input[type="checkbox"] {
-      transform: scale(1.25);
-      cursor: pointer;
-    }
-
-    .acciones {
-      margin-top: 20px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    footer {
-      text-align: center;
-      padding: 18px;
-      font-size: 13px;
-      color: #6b7280;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4f7fb; color: #1f2937; }
+    header { background: linear-gradient(135deg, #0f4c81, #1f7acb); color: white; padding: 28px 20px; text-align: center; }
+    header h1 { margin: 0; font-size: 26px; }
+    header p { margin: 8px 0 0; font-size: 15px; }
+    main { max-width: 1100px; margin: 25px auto; background: white; padding: 25px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    label { font-weight: bold; display: block; margin-bottom: 8px; }
+    select, button { padding: 11px; font-size: 15px; border-radius: 8px; border: 1px solid #cbd5e1; }
+    select { width: 100%; max-width: 520px; background: white; }
+    button { cursor: pointer; border: none; background: #0f4c81; color: white; font-weight: bold; margin-top: 18px; }
+    button:hover { background: #0b3a63; }
+    button:disabled { background: #9ca3af; cursor: not-allowed; }
+    .info { margin-top: 18px; padding: 14px; background: #eaf4ff; border-left: 5px solid #1f7acb; border-radius: 8px; font-weight: bold; }
+    .alerta { margin-top: 18px; padding: 14px; background: #fff3cd; border-left: 5px solid #f59e0b; border-radius: 8px; display: none; }
+    .error { background: #fdecea; border-left-color: #dc2626; }
+    table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 14px; }
+    th { background: #0f4c81; color: white; text-align: left; padding: 10px; }
+    td { border-bottom: 1px solid #e5e7eb; padding: 9px; }
+    tr:hover { background: #f8fafc; }
+    input[type="checkbox"] { transform: scale(1.25); cursor: pointer; }
+    .acciones { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+    footer { text-align: center; padding: 18px; font-size: 13px; color: #6b7280; }
   </style>
 </head>
 
@@ -203,10 +90,13 @@ function jsonp(params, callback) {
     if (script.parentNode) script.parentNode.removeChild(script);
 
     const btn = document.getElementById("btnGuardar");
-    if (btn) btn.disabled = false;
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Enviar selección";
+    }
 
-    mostrarMensaje("No hubo respuesta del servidor. Revise la implementación del Apps Script o si la selección enviada es muy grande.", "error");
-  }, 20000);
+    mostrarMensaje("No hubo respuesta del servidor. Revise la implementación del Apps Script o la conexión.", "error");
+  }, 60000);
 
   window[nombreCallback] = function(data) {
     clearTimeout(timeout);
@@ -224,7 +114,10 @@ function jsonp(params, callback) {
     if (script.parentNode) script.parentNode.removeChild(script);
 
     const btn = document.getElementById("btnGuardar");
-    if (btn) btn.disabled = false;
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Enviar selección";
+    }
 
     mostrarMensaje("No se pudo conectar con Apps Script. Verifique la URL de implementación y los permisos.", "error");
   };
@@ -313,9 +206,7 @@ function cargarListado() {
       const fila = document.createElement("tr");
 
       fila.innerHTML = `
-        <td>
-          <input type="checkbox" value="${est.IdEstudiante}" onchange="validarCuota(this)">
-        </td>
+        <td><input type="checkbox" value="${est.IdEstudiante}" onchange="validarCuota(this)"></td>
         <td>${est.Centro || ""}</td>
         <td>${est.Grado || ""}</td>
         <td>${est.IdEstudiante || ""}</td>
@@ -386,14 +277,10 @@ function guardarSeleccion() {
 
   mostrarMensaje("Enviando selección. Espere la confirmación del sistema.");
 
-  const payload = {
-    distrito: distritoActual,
-    seleccionados: seleccionados
-  };
-
   jsonp({
     accion: "guardar",
-    payload: JSON.stringify(payload)
+    distrito: distritoActual,
+    ids: seleccionados.join(",")
   }, function(res) {
     btnGuardar.textContent = "Enviar selección";
 
