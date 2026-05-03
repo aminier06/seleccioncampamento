@@ -283,12 +283,7 @@ function cargarListado() {
     cuotaActual = Number(res.cuota) || 0;
     yaEnvioActual = res.yaEnvio === true;
 
-    if (yaEnvioActual) {
-      info.textContent = `Este distrito ya realizó su envío. No se permiten nuevos registros.`;
-      mostrarMensaje("La selección de este distrito ya fue enviada.", "error");
-      return;
-    }
-
+    
     if (!res.estudiantes || res.estudiantes.length === 0) {
       info.textContent = "No hay estudiantes candidatos para este distrito.";
       return;
