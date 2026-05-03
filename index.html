@@ -198,15 +198,34 @@ function jsonp(params, callback) {
   const nombreCallback = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
   const script = document.createElement("script");
 
-  window[nombreCallback] = function(data) {
+  const timeout = setTimeout(function() {
     delete window[nombreCallback];
     if (script.parentNode) script.parentNode.removeChild(script);
+
+    const btn = document.getElementById("btnGuardar");
+    if (btn) btn.disabled = false;
+
+    mostrarMensaje("No hubo respuesta del servidor. Revise la implementación del Apps Script o si la selección enviada es muy grande.", "error");
+  }, 20000);
+
+  window[nombreCallback] = function(data) {
+    clearTimeout(timeout);
+    delete window[nombreCallback];
+
+    if (script.parentNode) script.parentNode.removeChild(script);
+
     callback(data);
   };
 
   script.onerror = function() {
+    clearTimeout(timeout);
     delete window[nombreCallback];
+
     if (script.parentNode) script.parentNode.removeChild(script);
+
+    const btn = document.getElementById("btnGuardar");
+    if (btn) btn.disabled = false;
+
     mostrarMensaje("No se pudo conectar con Apps Script. Verifique la URL de implementación y los permisos.", "error");
   };
 
@@ -361,7 +380,11 @@ function guardarSeleccion() {
 
   if (!confirmar) return;
 
-  document.getElementById("btnGuardar").disabled = true;
+  const btnGuardar = document.getElementById("btnGuardar");
+  btnGuardar.disabled = true;
+  btnGuardar.textContent = "Enviando...";
+
+  mostrarMensaje("Enviando selección. Espere la confirmación del sistema.");
 
   const payload = {
     distrito: distritoActual,
@@ -372,15 +395,19 @@ function guardarSeleccion() {
     accion: "guardar",
     payload: JSON.stringify(payload)
   }, function(res) {
+    btnGuardar.textContent = "Enviar selección";
+
     if (!res.ok) {
-      document.getElementById("btnGuardar").disabled = false;
+      btnGuardar.disabled = false;
       mostrarMensaje(res.mensaje || "No se pudo enviar la selección.", "error");
       return;
     }
 
     mostrarMensaje(res.mensaje || "Selección enviada correctamente.");
+
     document.getElementById("tabla").style.display = "none";
-    document.getElementById("btnGuardar").disabled = true;
+    btnGuardar.disabled = true;
+
     document.getElementById("info").textContent =
       `Envío completado. Distrito: ${res.distrito}. Seleccionados: ${res.seleccionados}.`;
 
