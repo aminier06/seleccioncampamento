@@ -267,10 +267,10 @@ function enviar() {
     return;
   }
 
-  const nombre = prompt("Nombre del responsable:");
+  const nombre = prompt("Nombre de la persona que envía la selección:");
   if (!nombre || nombre.trim() === "") return;
 
-  const cedula = prompt("Cédula del responsable:");
+  const cedula = prompt("Cédula de la persona que envía la selección:");
   if (!cedula || cedula.trim() === "") return;
 
   jsonp({
