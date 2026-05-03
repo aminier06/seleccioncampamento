@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selección de estudiantes - Campamento</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f7fb;
+      color: #1f2937;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f4c81, #1f7acb);
+      color: white;
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      font-size: 15px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 25px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    select, button {
+      padding: 11px;
+      font-size: 15px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+    }
+
+    select {
+      width: 100%;
+      max-width: 520px;
+      background: white;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: #0f4c81;
+      color: white;
+      font-weight: bold;
+      margin-top: 18px;
+    }
+
+    button:hover {
+      background: #0b3a63;
+    }
+
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .info {
+      margin-top: 18px;
+      padding: 14px;
+      background: #eaf4ff;
+      border-left: 5px solid #1f7acb;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .alerta {
+      margin-top: 18px;
+      padding: 14px;
+      background: #fff3cd;
+      border-left: 5px solid #f59e0b;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .error {
+      background: #fdecea;
+      border-left-color: #dc2626;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 22px;
+      font-size: 14px;
+    }
+
+    th {
+      background: #0f4c81;
+      color: white;
+      text-align: left;
+      padding: 10px;
+    }
+
+    td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 9px;
+    }
+
+    tr:hover {
+      background: #f8fafc;
+    }
+
+    input[type="checkbox"] {
+      transform: scale(1.25);
+      cursor: pointer;
+    }
+
+    .acciones {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    footer {
+      text-align: center;
+      padding: 18px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Selección de estudiantes para el campamento</h1>
+  <p>Seleccione el distrito y marque únicamente los estudiantes que participarán.</p>
+</header>
+
+<main>
+  <label for="distrito">Distrito</label>
+  <select id="distrito" onchange="cargarListado()">
+    <option value="">Cargando distritos...</option>
+  </select>
+
+  <div id="info" class="info">
+    Seleccione un distrito para cargar el listado.
+  </div>
+
+  <div id="mensaje" class="alerta"></div>
+
+  <table id="tabla" style="display:none;">
+    <thead>
+      <tr>
+        <th>Seleccionar</th>
+        <th>Centro</th>
+        <th>Grado</th>
+        <th>IdEstudiante</th>
+        <th>Nombre completo</th>
+        <th>Nacionalidad</th>
+        <th>Sexo</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="acciones">
+    <button id="btnGuardar" onclick="guardarSeleccion()" disabled>
+      Guardar selección
+    </button>
+  </div>
+</main>
+
+<footer>
+  © 2026 Ministerio de Educación – Desarrollado por Aneudy Minier
+</footer>
+
+<script>
+const URL = "https://script.google.com/macros/s/AKfycbwLlwv0Edj1plzHpwpbgJzF2lOraFM7t-eRWJFBqf8QY0QpBcZ62ok8pEbNNBNL3Nbzag/exec";
+
+let cuotaActual = 0;
+let distritoActual = "";
+let yaEnvioActual = false;
+
+function jsonp(params, callback) {
+  const nombreCallback = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+
+  window[nombreCallback] = function(data) {
+    delete window[nombreCallback];
+    document.body.removeChild(script);
+    callback(data);
+  };
+
+  const query = new URLSearchParams({
+    ...params,
+    callback: nombreCallback
+  });
+
+  const script = document.createElement("script");
+  script.src = URL + "?" + query.toString();
+  document.body.appendChild(script);
+}
+
+function mostrarMensaje(texto, tipo = "normal") {
+  const mensaje = document.getElementById("mensaje");
+  mensaje.textContent = texto;
+  mensaje.style.display = "block";
+
+  mensaje.className = "alerta";
+  if (tipo === "error") mensaje.classList.add("error");
+}
+
+function ocultarMensaje() {
+  const mensaje = document.getElementById("mensaje");
+  mensaje.style.display = "none";
+  mensaje.textContent = "";
+}
+
+function cargarDistritos() {
+  jsonp({ accion: "distritos" }, function(res) {
+    const select = document.getElementById("distrito");
+    select.innerHTML = '<option value="">Seleccione un distrito</option>';
+
+    if (!res.ok) {
+      mostrarMensaje(res.mensaje || "No se pudieron cargar los distritos.", "error");
+      return;
+    }
+
+    res.distritos.forEach(d => {
+      const option = document.createElement("option");
+      option.value = d.distrito;
+      option.textContent = d.enviado 
+        ? `${d.distrito} — ENVIADO`
+        : `${d.distrito} — Cuota: ${d.cuota}`;
+      option.dataset.cuota = d.cuota;
+      option.dataset.enviado = d.enviado;
+      select.appendChild(option);
+    });
+  });
+}
+
+function cargarListado() {
+  ocultarMensaje();
+
+  const distrito = document.getElementById("distrito").value;
+  const tabla = document.getElementById("tabla");
+  const tbody = tabla.querySelector("tbody");
+  const btnGuardar = document.getElementById("btnGuardar");
+  const info = document.getElementById("info");
+
+  tbody.innerHTML = "";
+  tabla.style.display = "none";
+  btnGuardar.disabled = true;
+
+  if (!distrito) {
+    info.textContent = "Seleccione un distrito para cargar el listado.";
+    return;
+  }
+
+  distritoActual = distrito;
+  info.textContent = "Cargando estudiantes...";
+
+  jsonp({ accion: "listado", distrito: distrito }, function(res) {
+    if (!res.ok) {
+      info.textContent = "No se pudo cargar el listado.";
+      mostrarMensaje(res.mensaje || "Error al cargar el listado.", "error");
+      return;
+    }
+
+    cuotaActual = Number(res.cuota) || 0;
+    yaEnvioActual = res.yaEnvio === true;
+
+    if (yaEnvioActual) {
+      info.textContent = `Este distrito ya realizó su envío. No se permiten nuevos registros.`;
+      mostrarMensaje("La selección de este distrito ya fue enviada.", "error");
+      return;
+    }
+
+    if (!res.estudiantes || res.estudiantes.length === 0) {
+      info.textContent = "No hay estudiantes candidatos para este distrito.";
+      return;
+    }
+
+    res.estudiantes.forEach(est => {
+      const fila = document.createElement("tr");
+
+      fila.innerHTML = `
+        <td>
+          <input type="checkbox" value="${est.IdEstudiante}" onchange="validarCuota(this)">
+        </td>
+        <td>${est.Centro || ""}</td>
+        <td>${est.Grado || ""}</td>
+        <td>${est.IdEstudiante || ""}</td>
+        <td>${est["Nombre completo"] || ""}</td>
+        <td>${est.Nacionalidad || ""}</td>
+        <td>${est.Sexo || ""}</td>
+      `;
+
+      tbody.appendChild(fila);
+    });
+
+    tabla.style.display = "table";
+    btnGuardar.disabled = false;
+    actualizarContador();
+  });
+}
+
+function validarCuota(check) {
+  const seleccionados = document.querySelectorAll('input[type="checkbox"]:checked').length;
+
+  if (seleccionados > cuotaActual) {
+    check.checked = false;
+    mostrarMensaje(`No puede seleccionar más de ${cuotaActual} estudiantes para este distrito.`, "error");
+  } else {
+    ocultarMensaje();
+  }
+
+  actualizarContador();
+}
+
+function actualizarContador() {
+  const seleccionados = document.querySelectorAll('input[type="checkbox"]:checked').length;
+  document.getElementById("info").textContent =
+    `Distrito: ${distritoActual} | Cuota asignada: ${cuotaActual} | Seleccionados: ${seleccionados}`;
+}
+
+function guardarSeleccion() {
+  ocultarMensaje();
+
+  if (!distritoActual) {
+    mostrarMensaje("Debe seleccionar un distrito.", "error");
+    return;
+  }
+
+  const seleccionados = Array.from(
+    document.querySelectorAll('input[type="checkbox"]:checked')
+  ).map(chk => chk.value);
+
+  if (seleccionados.length === 0) {
+    mostrarMensaje("Debe seleccionar al menos un estudiante.", "error");
+    return;
+  }
+
+  if (seleccionados.length > cuotaActual) {
+    mostrarMensaje("La cantidad seleccionada excede la cuota asignada.", "error");
+    return;
+  }
+
+  const confirmar = confirm(
+    `Está a punto de guardar ${seleccionados.length} estudiante(s) para el distrito ${distritoActual}. Después de guardar, no podrá enviar nuevamente. ¿Desea continuar?`
+  );
+
+  if (!confirmar) return;
+
+  document.getElementById("btnGuardar").disabled = true;
+
+  const payload = {
+    distrito: distritoActual,
+    seleccionados: seleccionados
+  };
+
+  jsonp({
+    accion: "guardar",
+    payload: JSON.stringify(payload)
+  }, function(res) {
+    if (!res.ok) {
+      document.getElementById("btnGuardar").disabled = false;
+      mostrarMensaje(res.mensaje || "No se pudo guardar la selección.", "error");
+      return;
+    }
+
+    mostrarMensaje(res.mensaje || "Selección guardada correctamente.");
+    document.getElementById("tabla").style.display = "none";
+    document.getElementById("btnGuardar").disabled = true;
+    document.getElementById("info").textContent =
+      `Envío completado. Distrito: ${res.distrito}. Seleccionados: ${res.seleccionados}.`;
+
+    cargarDistritos();
+  });
+}
+
+cargarDistritos();
+</script>
+
+</body>
+</html>
