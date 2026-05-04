@@ -48,9 +48,40 @@ td {
   font-weight:bold;
 }
 
+.info-fijo {
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+  background: #0f4c81;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.consigna {
+  background: #eaf4ff;
+  border-left: 5px solid #1f7acb;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 12px 0;
+  font-weight: bold;
+  color: #0f4c81;
+}
+
 .error {
   color:red;
   margin-top:10px;
+}
+
+.footer {
+  margin-top: 30px;
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
 }
 
 /* ===== MEMBRETE ===== */
@@ -109,17 +140,21 @@ td {
   <option value="">Cargando...</option>
 </select>
 
-<div class="info" id="info"></div>
+<div class="consigna">
+  Marque únicamente la casilla de los estudiantes que participarán en el campamento, respetando la cuota asignada al distrito.
+</div>
+
+<div class="info-fijo" id="info"></div>
 <div class="error" id="error"></div>
 
 <table id="tabla" style="display:none;">
 <thead>
 <tr>
-<th>Sel</th>
 <th>Centro</th>
 <th>Grado</th>
 <th>ID</th>
 <th>Nombre</th>
+<th>Seleccionar</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -128,6 +163,10 @@ td {
 <button id="btnEnviar" onclick="enviar()" disabled>
 Enviar selección
 </button>
+
+<footer class="footer">
+  © 2026 Ministerio de Educación – Desarrollado por Aneudy Minier
+</footer>
 
 <script>
 
@@ -211,11 +250,13 @@ function cargarListado() {
     res.estudiantes.forEach(est => {
       const fila = `
       <tr>
-        <td><input type="checkbox" value="${est.IdEstudiante}" onchange="validar(this)"></td>
         <td>${est.Centro}</td>
         <td>${est.Grado}</td>
         <td>${est.IdEstudiante}</td>
         <td>${est["Nombre completo"]}</td>
+        <td style="text-align:center;">
+          <input type="checkbox" value="${est.IdEstudiante}" onchange="validar(this)">
+        </td>
       </tr>
       `;
       tbody.innerHTML += fila;
